@@ -1,4 +1,20 @@
 spring:
+  mail:
+    transport:
+      protocol: smtp
+    smtp:
+      ssl:
+        trust: smtp.gmail.com  
+    username: pubgtest01984@gmail.com
+    password: 
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   datasource:
     url: jdbc:mysql://localhost:3306/restraurant
     username: root
@@ -13,3 +29,4 @@ spring:
         dialect:org.hibernate.dialect.MySQL8Dialect
 thymeleaf-layout-dialect:
   .version=2.1.1
+
