@@ -11,7 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -36,7 +38,7 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-   
+    private static final int Password_reset_timeout = 600;
 
     @GetMapping("/register")
     public String Register(Model model){
@@ -148,6 +150,30 @@ public class AccountController {
 
         }
         return "redirect:/profile";
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPassword(Model model){
+        return "account_view/forgotPassword";
+    }
+
+    @PostMapping("/reset_user_password")
+    public String reset_password(@RequestParam("email") String _email, RedirectAttributes attributes, Model model) {
+        Optional<Account> optional_account = accountService.findOneByEmail(_email);
+        if (optional_account.isPresent()) {
+            Account account = accountService.findAccountById(optional_account.get().getId()).get();
+            String reset_token = UUID.randomUUID().toString();
+            account.setPassword_reset_token(reset_token);
+            account.setPassword_reset_token_expiry(LocalDateTime.now().plusMinutes(Password_reset_timeout));
+            accountService.saveAccount(account);
+            attributes.addFlashAttribute("message", "Password reset email sent");
+            return "redirect:/login";
+            
+        } else {
+            attributes.addFlashAttribute("error", "No user found with the email supplied");
+            return "account_view/forgotPassword";
+        }
+
     }
 }
     

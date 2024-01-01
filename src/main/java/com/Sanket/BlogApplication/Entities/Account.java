@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +47,10 @@ public class Account {
 
     private int age;
 
+    private String password_reset_token;
+
+    private LocalDateTime password_reset_token_expiry;
+    
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate Date_Of_Birth;
     
@@ -68,9 +72,12 @@ public class Account {
     public String toString() {
         return "Account [id=" + id + ", FirstName=" + FirstName + ", LastName=" + LastName + ", email=" + email
                 + ", password=" + password + ", Role=" + Role + ", gender=" + gender + ", age=" + age
-                + ", Date_Of_Birth=" + Date_Of_Birth + ", photo=" + photo + ", posts=" + posts + ", authority="
-                + authority + "]";
+                + ", password_reset_token=" + password_reset_token + ", password_reset_token_expiry="
+                + password_reset_token_expiry + ", Date_Of_Birth=" + Date_Of_Birth + ", photo=" + photo + ", posts="
+                + posts + ", authority=" + authority + "]";
     }
+
+    
 
     
 }

@@ -27,6 +27,8 @@ public class AccountService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+   
+
     public Account saveAccount(Account account){
         //encrypting password
         account.setPassword(passwordEncoder.encode(account.getPassword()));
@@ -60,4 +62,10 @@ public class AccountService implements UserDetailsService {
     public Optional<Account> findOneByEmail(String email){
         return accountRepo.findOneByEmailIgnoreCase(email);
     }
+
+    //find account by id
+    public Optional<Account> findAccountById(Long id){
+        return accountRepo.findById(id);
+    }
+
 }

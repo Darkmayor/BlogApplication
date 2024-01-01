@@ -36,5 +36,4 @@ public class PostService {
     public void delete(Post post){
         postrepo.delete(post);
     }
-
 }

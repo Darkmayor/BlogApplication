@@ -25,9 +25,10 @@ public class WebSecurity {
       "/fonts/**",
       "/js/**",
         "/login",
-        "/update_photo"
+        "/update_photo",
+        "/forgot-password",
+        "/reset_user_password*"
     };
-
     @Bean
     public static PasswordEncoder passwordEncoder(){
 
