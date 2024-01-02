@@ -47,7 +47,8 @@ public class Account {
 
     private int age;
 
-    private String password_reset_token;
+    @Column(name = "token")
+    private String token;
 
     private LocalDateTime password_reset_token_expiry;
     
@@ -72,7 +73,7 @@ public class Account {
     public String toString() {
         return "Account [id=" + id + ", FirstName=" + FirstName + ", LastName=" + LastName + ", email=" + email
                 + ", password=" + password + ", Role=" + Role + ", gender=" + gender + ", age=" + age
-                + ", password_reset_token=" + password_reset_token + ", password_reset_token_expiry="
+                + ", password_reset_token=" + token + ", password_reset_token_expiry="
                 + password_reset_token_expiry + ", Date_Of_Birth=" + Date_Of_Birth + ", photo=" + photo + ", posts="
                 + posts + ", authority=" + authority + "]";
     }

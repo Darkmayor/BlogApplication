@@ -3,7 +3,9 @@ package com.Sanket.BlogApplication.Controller;
 import com.Sanket.BlogApplication.Entities.Account;
 
 import com.Sanket.BlogApplication.Services.AccountService;
+import com.Sanket.BlogApplication.Services.EmailService;
 import com.Sanket.BlogApplication.utilities.AppUtils;
+import com.Sanket.BlogApplication.utilities.EmailService.EmailDetails;
 
 import jakarta.validation.Valid;
 
@@ -18,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.web.exchanges.HttpExchange.Principal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,6 +39,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AccountController {
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Value("${site.domain}")
+    private String site_domain;
 
     private static final int Password_reset_timeout = 600;
 
@@ -163,9 +171,18 @@ public class AccountController {
         if (optional_account.isPresent()) {
             Account account = accountService.findAccountById(optional_account.get().getId()).get();
             String reset_token = UUID.randomUUID().toString();
-            account.setPassword_reset_token(reset_token);
+            account.setToken(reset_token);
             account.setPassword_reset_token_expiry(LocalDateTime.now().plusMinutes(Password_reset_timeout));
             accountService.saveAccount(account);
+            //create email details and add attribute 
+            String reset_message = "This is the reset password link "+site_domain+"change_password?token="+reset_token;
+            EmailDetails emailDetails = new EmailDetails(account.getEmail(), reset_message, "The link to reset Your Password");
+            
+            if(emailService.sendSimpleEmail(emailDetails) == false){
+                attributes.addFlashAttribute("error" , "Error sending Email Contact Admin");
+                return "account_view/forgotPassword";
+            }
+
             attributes.addFlashAttribute("message", "Password reset email sent");
             return "redirect:/login";
             
@@ -175,6 +192,25 @@ public class AccountController {
         }
 
     }
+
+     @GetMapping("/change_password")
+        public String change_password(Model model,@RequestParam("password_reset_token") String token , RedirectAttributes attributes){
+            Optional<Account> optionalAccount = accountService.findAccountByToken(token);
+            if(optionalAccount.isPresent()){
+                long account_id = optionalAccount.get().getId();
+                LocalDateTime currTime = LocalDateTime.now();
+                if(currTime.isAfter(optionalAccount.get().getPassword_reset_token_expiry())){
+                    attributes.addFlashAttribute("error" , "Token expired");
+                    return "account_view/forgotPassword";
+                }
+
+                model.addAttribute("account_id", account_id);
+                return "account_view/changePassword";
+            }
+            attributes.addFlashAttribute("error" , "invalid Token");
+            return "404";
+    }
+   
 }
     
 

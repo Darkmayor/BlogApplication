@@ -12,4 +12,8 @@ public interface AccountRepo extends JpaRepository<Account , Long> {
 
     Optional<Account> findOneByEmailIgnoreCase(String email);
 
+    Optional<Account> findBytoken(String password_reset_token);
+
+
+
 }
