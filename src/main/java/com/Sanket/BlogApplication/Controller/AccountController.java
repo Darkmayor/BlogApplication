@@ -175,7 +175,7 @@ public class AccountController {
             account.setPassword_reset_token_expiry(LocalDateTime.now().plusMinutes(Password_reset_timeout));
             accountService.saveAccount(account);
             //create email details and add attribute 
-            String reset_message = "This is the reset password link "+site_domain+"change_password?token="+reset_token;
+            String reset_message = "This is the reset password link "+site_domain+"update_passwords?token="+reset_token;
             EmailDetails emailDetails = new EmailDetails(account.getEmail(), reset_message, "The link to reset Your Password");
             
             if(emailService.sendSimpleEmail(emailDetails) == false){
@@ -193,25 +193,35 @@ public class AccountController {
 
     }
 
-     @GetMapping("/change_password")
-        public String change_password(Model model,@RequestParam("password_reset_token") String token , RedirectAttributes attributes){
-            Optional<Account> optionalAccount = accountService.findAccountByToken(token);
-            if(optionalAccount.isPresent()){
-                long account_id = optionalAccount.get().getId();
-                LocalDateTime currTime = LocalDateTime.now();
-                if(currTime.isAfter(optionalAccount.get().getPassword_reset_token_expiry())){
-                    attributes.addFlashAttribute("error" , "Token expired");
-                    return "account_view/forgotPassword";
-                }
-
-                model.addAttribute("account_id", account_id);
-                return "account_view/changePassword";
+    @GetMapping("/update_passwords")
+    public String change_password(Model model,@RequestParam("token") String token , RedirectAttributes attributes) {
+        if(token.equals("")){
+            attributes.addFlashAttribute("error" , "Invalid Token");
+            return "account_view/forgotPassword";
+        }
+        Optional<Account> optionalAccount = accountService.findAccountByToken(token);
+        if(optionalAccount.isPresent()){
+            Account account = accountService.findAccountById(optionalAccount.get().getId()).get();
+            LocalDateTime currTime = LocalDateTime.now();
+            if(currTime.isAfter(optionalAccount.get().getPassword_reset_token_expiry())){
+                attributes.addFlashAttribute("error" , "Token expired");
+                return "account_view/forgotPassword";
             }
-            attributes.addFlashAttribute("error" , "invalid Token");
-            return "404";
-    }
-   
+
+            model.addAttribute("account", account);
+            return "account_view/changepassword";
+        }
+        attributes.addFlashAttribute("error" , "invalid Token");
+        return "account_view/forgotPassword";
 }
-    
-
-
+   
+    @PostMapping("/change-user-password")
+    public String post_change_password(@ModelAttribute Account account,  RedirectAttributes attributes) {
+        Account account_by_id = accountService.findAccountById(account.getId()).get();
+        account_by_id.setPassword(account.getPassword());
+        account_by_id.setToken("");
+        accountService.saveAccount(account_by_id);
+        attributes.addFlashAttribute("message", "Password updated");
+        return  "redirect:/login";       
+    }
+}

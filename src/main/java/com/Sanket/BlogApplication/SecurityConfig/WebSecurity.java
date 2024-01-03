@@ -24,10 +24,11 @@ public class WebSecurity {
       "/images/**",
       "/fonts/**",
       "/js/**",
+      "/update_passwords",
         "/login",
         "/update_photo",
         "/forgot-password",
-        "/reset_user_password*"
+        "/reset_user_password"
     };
     @Bean
     public static PasswordEncoder passwordEncoder(){
