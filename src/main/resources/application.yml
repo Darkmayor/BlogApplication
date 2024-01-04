@@ -1,7 +1,7 @@
 spring:
   mail:
     username: pubgtest01984@gmail.com
-    password: jendzsxkzmyfpvjq 
+    password: 
     transport:
       protocol: smtp
     smtp:
